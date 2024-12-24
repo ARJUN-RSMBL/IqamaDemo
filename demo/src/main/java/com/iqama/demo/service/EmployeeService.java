@@ -7,6 +7,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,8 @@ public class EmployeeService {
 
     @Autowired
     private JavaMailSender javaMailSender;
+
+
 
     public Employee createEmployee(Employee employee) {
         System.out.println("Employee received: " + employee);
@@ -73,26 +76,47 @@ public void checkAndSendExpiryNotifications() {
         }
     }
 
-    public void sendExpiryNotification(Employee employee) {
-        String toEmail = "arjun@resemblesystems.com"; // Replace with the recipient's email address
-        String subject = "Expiry Notification for Employee: " + employee.getName();
-        String body = String.format("Employee Name: %s\nEmail: %s\nExpiry Date: %s",
-                employee.getName(),
-                employee.getEmail(),
-                employee.getExpiryDate());
-
-        try {
-            MimeMessage message = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setTo(toEmail);
-            helper.setSubject(subject);
-            helper.setText(body);
-            javaMailSender.send(message);
-            System.out.println("Email sent successfully for employee: " + employee.getName());
-        } catch (MessagingException e) {
-            System.err.println("Failed to send email for employee: " + employee.getName());
-            e.printStackTrace();
-        }
+    private void sendExpiryNotification( Employee employee) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(employee.getEmail());
+        message.setSubject("Your Iqama Demo Account has Expired");
+        message.setText("Dear " + employee.getName() + ",\n\n" +
+                "Your Iqama Demo Account has expired. Please contact us at <EMAIL> to renew your account.\n\n" +
+                "Thank you,\n" +
+                "Iqama Demo Team");
+        javaMailSender.send(message);
     }
+
+    public JavaMailSender getJavaMailSender() {
+        return javaMailSender;
+    }
+
+
+
+    public void setJavaMailSender(JavaMailSender javaMailSender) {
+        this.javaMailSender = javaMailSender;
+    }
+
+//    public void sendExpiryNotification(Employee employee) {
+//        String toEmail = "arjun@resemblesystems.com"; // Replace with the recipient's email address
+//        String subject = "Expiry Notification for Employee: " + employee.getName();
+//        String body = String.format("Employee Name: %s\nEmail: %s\nExpiry Date: %s",
+//                employee.getName(),
+//                employee.getEmail(),
+//                employee.getExpiryDate());
+//
+//        try {
+//            MimeMessage message = javaMailSender.createMimeMessage();
+//            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+//            helper.setTo(toEmail);
+//            helper.setSubject(subject);
+//            helper.setText(body);
+//            javaMailSender.send(message);
+//            System.out.println("Email sent successfully for employee: " + employee.getName());
+//        } catch (MessagingException e) {
+//            System.err.println("Failed to send email for employee: " + employee.getName());
+//            e.printStackTrace();
+//        }
+//    }
 
 }
