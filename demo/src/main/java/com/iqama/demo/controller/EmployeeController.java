@@ -59,4 +59,10 @@ public class EmployeeController {
         List<Employee> employees = employeeService.getAllEmployee();
         return new ResponseEntity<>(employees, HttpStatus.OK);
     }
+
+    @GetMapping("/test-scheduler")
+    public void testScheduler() {
+        employeeService.checkAndSendExpiryNotifications();
+    }
+
 }

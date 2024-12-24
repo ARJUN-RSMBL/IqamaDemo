@@ -3,10 +3,17 @@ package com.iqama.demo.service;
 import com.iqama.demo.Exception.ResourceNotFoundException;
 import com.iqama.demo.entity.Employee;
 import com.iqama.demo.repository.EmployeeRepository;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.mail.javamail.JavaMailSender;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +23,9 @@ public class EmployeeService {
 
     @Autowired
     private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private JavaMailSender javaMailSender;
 
     public Employee createEmployee(Employee employee) {
         System.out.println("Employee received: " + employee);
@@ -47,5 +57,42 @@ public class EmployeeService {
 
     }
 
+//    @Scheduled(cron = "0 0 0 * * ?") // Runs daily at midnight
+@Scheduled(cron = "0 * * * * ?") // Runs every minute
+public void checkAndSendExpiryNotifications() {
+        List<Employee> employees = employeeRepository.findAll();
+        LocalDate currentDate = LocalDate.now();
+
+        for (Employee employee : employees) {
+            if (employee.getExpiryDate() != null) {
+                long daysDifference = ChronoUnit.DAYS.between(currentDate, employee.getExpiryDate());
+                if (daysDifference == 30) {
+                    sendExpiryNotification(employee);
+                }
+            }
+        }
+    }
+
+    public void sendExpiryNotification(Employee employee) {
+        String toEmail = "arjun@resemblesystems.com"; // Replace with the recipient's email address
+        String subject = "Expiry Notification for Employee: " + employee.getName();
+        String body = String.format("Employee Name: %s\nEmail: %s\nExpiry Date: %s",
+                employee.getName(),
+                employee.getEmail(),
+                employee.getExpiryDate());
+
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(body);
+            javaMailSender.send(message);
+            System.out.println("Email sent successfully for employee: " + employee.getName());
+        } catch (MessagingException e) {
+            System.err.println("Failed to send email for employee: " + employee.getName());
+            e.printStackTrace();
+        }
+    }
 
 }
