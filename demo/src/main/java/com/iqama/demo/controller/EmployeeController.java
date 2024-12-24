@@ -3,24 +3,37 @@ package com.iqama.demo.controller;
 import com.iqama.demo.entity.Employee;
 import com.iqama.demo.service.EmployeeService;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/employee")
 @AllArgsConstructor
 public class EmployeeController {
 
+    @Autowired
     private  EmployeeService employeeService;
 
+//    @PostMapping
+//    public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
+//        Employee savedEmployee = employeeService.createEmployee(employee);
+//        return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
+//    }
+
     @PostMapping
-    public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
-        Employee savedEmployee = employeeService.createEmployee(employee);
-        return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
+    public ResponseEntity<?> createEmployee(@RequestBody Employee employee) {
+        try {
+            Employee savedEmployee = employeeService.createEmployee(employee);
+            return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error occurred: " + e.getMessage());
+        }
     }
 
     @GetMapping("/{id}")

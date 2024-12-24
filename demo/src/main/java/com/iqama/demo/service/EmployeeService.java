@@ -4,6 +4,7 @@ import com.iqama.demo.Exception.ResourceNotFoundException;
 import com.iqama.demo.entity.Employee;
 import com.iqama.demo.repository.EmployeeRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,9 +14,11 @@ import java.util.Optional;
 @AllArgsConstructor
 public class EmployeeService {
 
+    @Autowired
     private EmployeeRepository employeeRepository;
 
     public Employee createEmployee(Employee employee) {
+        System.out.println("Employee received: " + employee);
       return   employeeRepository.save(employee);
     }
 
