@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 public class EmployeeController {
 
-    private final EmployeeService employeeService;
+    private  EmployeeService employeeService;
 
     @PostMapping
     public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
