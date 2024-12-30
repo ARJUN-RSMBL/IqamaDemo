@@ -1,13 +1,7 @@
 package com.iqama.demo.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
@@ -26,6 +20,13 @@ public class Employee {
 
     @JsonProperty("expiryDate")
     private LocalDate expiryDate;
+
+    @ManyToOne // each employee can have only one role, but multiple employees can share the same role.
+    @JoinColumn(name = "role_id", referencedColumnName = "id") //FK to EmployeeRole
+    private EmployeeRole role;
+
+    @Transient //this field won't be stored in the db
+    private String status;
 
     public Long getId() {
         return id;
@@ -57,5 +58,26 @@ public class Employee {
 
     public void setExpiryDate(LocalDate expiryDate) {
         this.expiryDate = expiryDate;
+    }
+
+    public EmployeeRole getRole() {
+        return role;
+    }
+
+    public void setRole(EmployeeRole role) {
+        this.role = role;
+    }
+
+    public String getStatus() {
+        //calculate status based on expiryDate
+        if(expiryDate != null && expiryDate.isBefore(LocalDate.now())) {
+            return "Expired";
+        }
+        return "Active";
+    }
+
+    //not needed since the status is dynamically calculated
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
