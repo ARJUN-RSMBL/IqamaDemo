@@ -1,12 +1,65 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import '../styles/FormStyles.css'
+import employeeService from '../services/employeeService'
+import roleService from '../services/roleService'
 
-/* Employee Registration Form */
 function IqamaFormComponent() {
+  // Add state management
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    expiryDate: '',
+    roleId: ''
+  })
+  const [roles, setRoles] = useState([])
+
+  // Fetch roles on component mount
+  useEffect(() => {
+    loadRoles()
+  }, [])
+
+  const loadRoles = async () => {
+    try {
+      const response = await roleService.getAllRoles()
+      setRoles(response.data)
+    } catch (error) {
+      console.error('Error loading roles:', error)
+    }
+  }
+  
+
+  // Handle input changes
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      await employeeService.createEmployee(formData)
+      // Clear form after successful submission
+      setFormData({
+        name: '',
+        email: '',
+        expiryDate: '',
+        roleId: ''
+      })
+      alert('Employee registered successfully!')
+    } catch (error) {
+      console.error('Error submitting form:', error)
+      alert('Error registering employee')
+    }
+  }
+
+
   return (
     <div className="iqama-form-container">
       <h2 className="form-title">Employee Registration Form</h2>
-      <form className="iqama-form">
+      <form className="iqama-form" onSubmit={handleSubmit}>  {/* Add onSubmit handler here */}
         <div className="form-group">
           <label htmlFor="name" className="form-label">Name:</label>
           <input
@@ -14,6 +67,8 @@ function IqamaFormComponent() {
             type="text"
             id="name"
             name="name"
+            value={formData.name}
+            onChange={handleChange}
             required
           />
         </div>
@@ -24,6 +79,8 @@ function IqamaFormComponent() {
             type="email"
             id="email"
             name="email"
+            value={formData.email}
+            onChange={handleChange}
             required
             className="form-input"
           />
@@ -35,7 +92,8 @@ function IqamaFormComponent() {
             type="date"
             id="expiryDate"
             name="expiryDate"
-
+            value={formData.expiryDate}
+            onChange={handleChange}
             required
             className="form-input"
           />
@@ -46,12 +104,21 @@ function IqamaFormComponent() {
           <select
             id="roleId"
             name="roleId"
-
+            value={formData.roleId}
+            onChange={handleChange}
             required
             className="form-select"
           >
             <option value="">Select a Role</option>
-
+            {roles && roles.length > 0 ? ( // Add conditional rendering
+              roles.map(role => (
+                <option key={role.id} value={role.id}>
+                  {role.roleName}
+                </option>
+              ))
+            ) : (
+              <option value="" disabled>No roles available</option>
+            )}
           </select>
         </div>
 
