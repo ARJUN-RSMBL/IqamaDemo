@@ -1,5 +1,3 @@
-
-
 function IqamaComponent() {
   return (
     <div>IqamaComponent</div>

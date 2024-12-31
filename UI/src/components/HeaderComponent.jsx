@@ -31,6 +31,9 @@ const HeaderComponent = () => {
                   <NavLink to="/form" className="nav-link">Form</NavLink>
                 </li>
                 <li className='nav-item'>
+                  <NavLink to="/table" className="nav-link">Employees</NavLink>
+                </li>
+                <li className='nav-item'>
                   <NavLink to="/login" className="nav-link">Login</NavLink>
                 </li>
               </ul>
